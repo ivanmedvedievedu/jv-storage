@@ -10,29 +10,35 @@ public class StorageImpl<K, V> implements Storage<K, V> {
 
     @Override
     public void put(K key, V value) {
+        int isPresentResult = isPresent(key);
+        if (isPresentResult == -1) {
+            for (int i = 0; i < keyStorage.length; i++) {
+                if (valueStorage[i] == null) {
+                    keyStorage[i] = key;
+                    valueStorage[i] = value;
+                    storageElementsAmount++;
+                    break;
+                }
+            }
+        } else {
+            keyStorage[isPresentResult] = key;
+            valueStorage[isPresentResult] = value;
+        }
+    }
+
+    public int isPresent(K key) {
         for (int i = 0; i < keyStorage.length; i++) {
-            if (key == null && keyStorage[i] == null && valueStorage[i] == null) {
-                valueStorage[i] = value;
-                storageElementsAmount++;
-                break;
-            } else if (key != null && keyStorage[i] == null && valueStorage[i] == null) {
-                valueStorage[i] = value;
-                keyStorage[i] = key;
-                storageElementsAmount++;
-                break;
-            } else if (key == null && keyStorage[i] == null && valueStorage[i] != null) {
-                valueStorage[i] = value;
-                break;
-            } else if (key != null && key.equals(keyStorage[i]) && valueStorage[i] != null) {
-                valueStorage[i] = value;
-                break;
+            if (keyStorage[i] == null && key == null && valueStorage[i] != null
+                    || keyStorage[i] != null && keyStorage[i].equals(key)) {
+                return i;
             }
         }
+        return -1;
     }
 
     @Override
     public V get(K key) {
-        for (int i = 0; i < storageElementsAmount; i++) {
+        for (int i = 0; i < keyStorage.length; i++) {
             if (key == null) {
                 if (keyStorage[i] == null) {
                     return valueStorage[i];
