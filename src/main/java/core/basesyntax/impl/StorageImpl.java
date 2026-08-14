@@ -2,6 +2,8 @@ package core.basesyntax.impl;
 
 import core.basesyntax.Storage;
 
+import java.util.Objects;
+
 public class StorageImpl<K, V> implements Storage<K, V> {
     private static final int STORAGE_SIZE = 10;
     private int storageElementsAmount = 0;
@@ -12,24 +14,17 @@ public class StorageImpl<K, V> implements Storage<K, V> {
     public void put(K key, V value) {
         int isPresentResult = isPresent(key);
         if (isPresentResult == -1) {
-            for (int i = 0; i < keyStorage.length; i++) {
-                if (valueStorage[i] == null) {
-                    keyStorage[i] = key;
-                    valueStorage[i] = value;
-                    storageElementsAmount++;
-                    break;
-                }
-            }
+            keyStorage[storageElementsAmount] = key;
+            valueStorage[storageElementsAmount] = value;
+            storageElementsAmount++;
         } else {
-            keyStorage[isPresentResult] = key;
             valueStorage[isPresentResult] = value;
         }
     }
 
     public int isPresent(K key) {
-        for (int i = 0; i < keyStorage.length; i++) {
-            if (keyStorage[i] == null && key == null && valueStorage[i] != null
-                    || keyStorage[i] != null && keyStorage[i].equals(key)) {
+        for (int i = 0; i < storageElementsAmount; i++) {
+            if (Objects.equals(keyStorage[i], key)) {
                 return i;
             }
         }
@@ -38,16 +33,12 @@ public class StorageImpl<K, V> implements Storage<K, V> {
 
     @Override
     public V get(K key) {
-        for (int i = 0; i < keyStorage.length; i++) {
-            if (key == null) {
-                if (keyStorage[i] == null) {
-                    return valueStorage[i];
-                }
-            } else if (key.equals(keyStorage[i])) {
-                return valueStorage[i];
-            }
+        int isPresentResult = isPresent(key);
+        if (isPresentResult == -1) {
+            return null;
+        } else {
+            return valueStorage[isPresentResult];
         }
-        return null;
     }
 
     @Override
